@@ -1,0 +1,20 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:3.4.6
+    healthcheck:
+        test: ["CMD", "mongo", "--eval", "'db.serverStatus()'"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+  backup:
+    build: "."
+    depends_on:
+      - mongo
+    environment:
+      - DATABASES=<db_names>
+      - BUCKET=<s3_name>
+      - AWS_ACCESS_KEY_ID=<aws_access_key_id>
+      - AWS_SECRET_ACCESS_KEY=<aws_secret_key>
+      - INTERVAL=600
+      
