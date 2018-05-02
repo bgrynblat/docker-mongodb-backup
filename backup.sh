@@ -27,6 +27,7 @@ dbexists() {
 
 backup () {
 	DB=$1
+	REMOTE_FILE=$2
 
 	dbexists $DB
 	if [ ! $? -eq 0 ] ; then
@@ -35,22 +36,22 @@ backup () {
 	fi
 
 	echo "=============== Backing up database $DB..."
-	aws s3 cp s3://$BUCKET/$DB.tgz $DB.tgz
+	aws s3 cp $REMOTE_FILE $DB.tgz
 	if [ -f $DB.tgz ] ; then
 		tar xvzf $DB.tgz
-		/usr/bin/mongorestore --host mongo -d backup-$DB $DB/$DB
+		mongorestore --host mongo -d backup-$DB $DB/$DB
 		compare $DB backup-$DB
 
 		if [ ! $? -eq 0 ] ; then
 			echo "Database has changed, backing up..."
 			rm -rf $DB.tgz $DB
 
-			/usr/bin/mongodump --host mongo -d $DB
+			mongodump --host mongo -d $DB
 			mv dump/* $DB/$DB 	#mongodump creates weird folder name - quick fix
 
 			tar cvzf $DB.tgz $DB
 			if [ $? -eq 0 ] ; then
-				aws s3 cp $DB.tgz s3://$BUCKET/
+				aws s3 cp $DB.tgz $REMOTE_FILE
 			fi
 		fi
 
@@ -58,12 +59,12 @@ backup () {
 		mongo --host mongo --eval "db.dropDatabase()" backup-$DB --quiet
 	else
 		echo "Database $DB has never been backed up. Creating first time backup..."
-		/usr/bin/mongodump --host mongo -d $DB
+		mongodump --host mongo -d $DB
 		mv dump/* $DB/$DB 	#mongodump creates weird folder name - quick fix
 
 		tar cvzf $DB.tgz $DB
 		if [ $? -eq 0 ] ; then
-			aws s3 cp $DB.tgz s3://$BUCKET/
+			aws s3 cp $DB.tgz $REMOTE_FILE
 		fi
 	fi
 
@@ -76,13 +77,40 @@ while $CMD ; ret=$? ; [ $ret -ne 0 ] ; do
 	sleep 10
 done
 
-if [ ! -z $1 ] ; then
-	backup $1
+if [ ! -z $1 ] && [ ! -z $2 ]; then
+	backup $1 $2
 else
-	DBS=${DATABASES//','/' '}
-	DBS=${DBS//';'/' '}
+
+	if [ -z "$DATABASES" ] && [ -z $DATABASE_FILE ] ; then
+		echo "Error: no variable DATABASE or DATABASE_FILE defined. Exiting."
+		exit 1
+	fi
+
+	if [ ! -z "$DATABASE_FILE" ] ; then
+		JSON=dbs.json
+		aws s3 cp $DATABASE_FILE $JSON
+		if [ ! -f $JSON ] ; then
+			echo "Error: Cannot fetch databases file, stopping."
+			exit 1
+		fi
+
+		let COUNT=`jq ".[] | length" $JSON`
+		let MAX=$COUNT-1
+
+		for i in `seq 0 $MAX`; do
+			NAME=`jq -r ".[$i].name" $JSON`
+			FILE=`jq -r ".[$i].file" $JSON`
+			DBS="$NAME@$FILE $DBS"
+		done
+		rm -f $JSON
+	else
+		DBS=${DATABASES//','/' '}
+		DBS=${DBS//';'/' '}
+	fi
 
 	for DB in $DBS; do
-		backup $DB
+		NAME=`echo $DB | cut -d@ -f1`
+		FILE=`echo $DB | cut -d@ -f2`
+		backup $NAME $FILE
 	done
 fi

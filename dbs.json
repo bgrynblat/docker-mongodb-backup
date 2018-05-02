@@ -1,0 +1,10 @@
+[
+  {
+    "name": "qat-tfnsw-future-feed-backend",
+    "file": "s3://smallmultiples-mongo-backups/future-feed/qat-tfnsw-future-feed-backend.tgz"
+  },
+  {
+    "name": "uat-tfnsw-future-feed-backend",
+    "file": "s3://smallmultiples-mongo-backups/future-feed/uat-tfnsw-future-feed-backend.tgz"
+  }
+]

@@ -1,5 +1,5 @@
 FROM debian:jessie
-RUN apt-get update && apt-get install -y tar python-pip python-dev build-essential mongodb-clients
+RUN apt-get update && apt-get install -y tar python-pip python-dev build-essential mongodb-clients jq
 RUN pip install awscli --upgrade --user
 RUN ln -s /root/.local/bin/aws /usr/bin/
 

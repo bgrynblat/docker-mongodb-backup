@@ -1,0 +1,26 @@
+[
+  {
+    "name": "qat-tfnsw-future-feed-backend",
+    "file": "s3://smallmultiples-mongo-backups/tfnsw-future-feed/qat-tfnsw-future-feed-backend.tgz"
+  },
+  {
+    "name": "uat-tfnsw-future-feed-backend",
+    "file": "s3://smallmultiples-mongo-backups/tfnsw-future-feed/uat-tfnsw-future-feed-backend.tgz"
+  },
+  {
+    "name": "prod-tfnsw-future-feed-backend",
+    "file": "s3://smallmultiples-mongo-backups/tfnsw-future-feed/prod-tfnsw-future-feed-backend.tgz"
+  },
+  {
+    "name": "qat-tfnsw-survey-backend-staging",
+    "file": "s3://smallmultiples-mongo-backups/tfnsw-survey/qat-tfnsw-survey-backend-staging.tgz"
+  },
+  {
+    "name": "uat-tfnsw-survey-backend-staging",
+    "file": "s3://smallmultiples-mongo-backups/tfnsw-survey/uat-tfnsw-survey-backend-staging.tgz"
+  },
+  {
+    "name": "tfnsw-future-survey",
+    "file": "s3://smallmultiples-mongo-backups/tfnsw-survey/tfnsw-future-survey.tgz"
+  }
+]

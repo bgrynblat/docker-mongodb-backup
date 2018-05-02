@@ -3,8 +3,9 @@ Start your mongodb server with automatic restore from S3 at startup and backup t
 # How to run ?
 
 Prerequisites : Dont't forget to configure your environment variables in `docker-compose.yaml`
-- `DATABASES` Name of the databases to backup/restore
-- `BUCKET` Name of the S3 bucket to store backups
+- `DATABASES` Name of the databases to backup/restore (format: `<db_name>@s3://<file_on_s3>`
+OR
+- `DATABASE_FILE` JSON file that dontains the database definition on s3 (format: `s3://<file_on_s3>` - see example file `dbs.json`)
 - `AWS_ACCESS_KEY_ID` Your AWS Access Key ID
 - `AWS_SECRET_ACCESS_KEY` Your AWS Secret Key
 - `INTERVAL` Backup interval in second (default: 300 - 5 minutes)

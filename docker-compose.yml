@@ -12,9 +12,9 @@ services:
     depends_on:
       - mongo
     environment:
-      - DATABASES=<db_names>
-      - BUCKET=<s3_name>
+      - DATABASES=qat-tfnsw-future-feed-backend@s3://smallmultiples-mongo-backups/future-feed/qat-tfnsw-future-feed-backend.tgz
       - AWS_ACCESS_KEY_ID=<aws_access_key_id>
       - AWS_SECRET_ACCESS_KEY=<aws_secret_key>
       - INTERVAL=600
+      - DATABASE_FILE=s3://smallmultiples-mongo-backups/databases.json
       

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z $DATABASES ] || [ -z $BUCKET ] ; then
+if [ -z $DATABASES ] && [ -z $DATABASE_FILE ] ; then
 	echo "WARNING: Environment variables not set, no backups will be performed."
 else
 	./restore.sh
