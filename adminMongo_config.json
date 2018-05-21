@@ -1,0 +1,8 @@
+{
+  "connections": {
+    "mongoDB": {
+      "connection_string": "mongodb://mongo",
+      "connection_options": {}
+    }
+  }
+}

@@ -17,4 +17,15 @@ services:
       - AWS_SECRET_ACCESS_KEY=<aws_secret_key>
       - INTERVAL=600
       - DATABASE_FILE=s3://smallmultiples-mongo-backups/databases.json
+
+  admin:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.adminMongo"
+    depends_on:
+      - mongo
+    environment:
+      - PASSWORD=superadminpassword
+    ports:
+      - "1234:1234"
       

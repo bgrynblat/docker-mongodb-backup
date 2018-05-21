@@ -1,0 +1,3 @@
+[submodule "adminMongo"]
+	path = adminMongo
+	url = https://github.com/mrvautin/adminMongo.git
