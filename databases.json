@@ -22,5 +22,9 @@
   {
     "name": "tfnsw-future-survey",
     "file": "s3://smallmultiples-mongo-backups/tfnsw-survey/tfnsw-future-survey.tgz"
+  },
+  {
+    "name": "sydneyuni_set",
+    "file": "s3://smallmultiples-mongo-backups/sydneyuni-set/sydneyuni_set.tgz"
   }
 ]

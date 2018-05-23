@@ -1,13 +1,26 @@
 #!/bin/bash
 
-compare() {
-	mongo --host mongo --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $1.md5
-	mongo --host mongo --eval "printjson(db.runCommand('dbHash').collections)" $2 --quiet > $2.md5
+uploadMd5() {
+	DB=$1
+	REMOTE_FILE_MD5="$2".md5
+	mongo --host mongo --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $DB.md5
 
-	sdiff $1.md5 $2.md5
+	aws s3 cp $DB.md5 $REMOTE_FILE_MD5
+
+	rm -f $DB.md5
+}
+
+compare() {
+	DB=$1
+	REMOTE_FILE_MD5="$2".md5
+
+	mongo --host mongo --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $1.md5
+	aws s3 cp $REMOTE_FILE_MD5 - | cat > $1.remote.md5
+
+	sdiff $1.md5 $1.remote.md5
 	RET=$?
 
-	rm -f $1.md5 $2.md5
+	rm -f $1.md5 $1.remote.md5
 
 	return $RET
 }
@@ -35,37 +48,21 @@ backup () {
 		return
 	fi
 
-	echo "=============== Backing up database $DB..."
-	aws s3 cp $REMOTE_FILE $DB.tgz
-	if [ -f $DB.tgz ] ; then
-		tar xvzf $DB.tgz
-		mongorestore --host mongo -d backup-$DB $DB/$DB
-		compare $DB backup-$DB
+	echo "=============== Comparing $1 with remote backup..."
+	compare $DB $REMOTE_FILE
+	if [ ! $? -eq 0 ] ; then
+		echo "Database has changed, backing up..."
 
-		if [ ! $? -eq 0 ] ; then
-			echo "Database has changed, backing up..."
-			rm -rf $DB.tgz $DB
-
-			mongodump --host mongo -d $DB
-			mv dump/* $DB/$DB 	#mongodump creates weird folder name - quick fix
-
-			tar cvzf $DB.tgz $DB
-			if [ $? -eq 0 ] ; then
-				aws s3 cp $DB.tgz $REMOTE_FILE
-			fi
-		fi
-
-		rm -rf $DB $DB.tgz
-		mongo --host mongo --eval "db.dropDatabase()" backup-$DB --quiet
-	else
-		echo "Database $DB has never been backed up. Creating first time backup..."
-		mongodump --host mongo -d $DB
-		mv dump/* $DB/$DB 	#mongodump creates weird folder name - quick fix
+		mongodump --host mongo -d $DB --out $DB
 
 		tar cvzf $DB.tgz $DB
 		if [ $? -eq 0 ] ; then
 			aws s3 cp $DB.tgz $REMOTE_FILE
+			uploadMd5 $DB $REMOTE_FILE
 		fi
+		rm -rf $DB $DB.tgz
+	else
+		echo "Database has not changed, skipping..."
 	fi
 
 	echo "=============== Done $DB..."

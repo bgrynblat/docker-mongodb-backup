@@ -10,7 +10,7 @@ restore() {
 		return 1
 	fi
 	tar xvzf $DB.tgz
-	mongorestore --host mongo $DB
+	mongorestore --host mongo --drop $DB
 	rm -rf $DB.tgz $DB
 	echo "=============== Done $DB..."
 }
@@ -45,6 +45,7 @@ else
 		for i in `seq 0 $MAX`; do
 			NAME=`jq -r ".[$i].name" $JSON`
 			FILE=`jq -r ".[$i].file" $JSON`
+
 			DBS="$NAME@$FILE $DBS"
 		done
 		rm -f $JSON
