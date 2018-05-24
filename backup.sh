@@ -3,7 +3,7 @@
 uploadMd5() {
 	DB=$1
 	REMOTE_FILE_MD5="$2".md5
-	mongo --host mongo --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $DB.md5
+	mongo --host $MONGO_HOST --port $MONGO_PORT --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $DB.md5
 
 	aws s3 cp $DB.md5 $REMOTE_FILE_MD5
 
@@ -14,7 +14,7 @@ compare() {
 	DB=$1
 	REMOTE_FILE_MD5="$2".md5
 
-	mongo --host mongo --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $1.md5
+	mongo --host $MONGO_HOST --port $MONGO_PORT --eval "printjson(db.runCommand('dbHash').collections)" $1 --quiet > $1.md5
 	aws s3 cp $REMOTE_FILE_MD5 - | cat > $1.remote.md5
 
 	sdiff $1.md5 $1.remote.md5
@@ -26,7 +26,7 @@ compare() {
 }
 
 getdbs() {
-	mongo --host mongo --eval "db.getMongo().getDBNames()" --quiet | tr ',' '\n' | grep -v admin | grep -v local
+	mongo --host $MONGO_HOST --port $MONGO_PORT --eval "db.getMongo().getDBNames()" --quiet | tr ',' '\n' | grep -v admin | grep -v local
 }
 
 dbexists() {
@@ -53,7 +53,7 @@ backup () {
 	if [ ! $? -eq 0 ] ; then
 		echo "Database has changed, backing up..."
 
-		mongodump --host mongo -d $DB --out $DB
+		mongodump --host $MONGO_HOST --port $MONGO_PORT -d $DB --out $DB
 
 		tar cvzf $DB.tgz $DB
 		if [ $? -eq 0 ] ; then
@@ -68,7 +68,7 @@ backup () {
 	echo "=============== Done $DB..."
 }
 
-CMD="mongo --host mongo --eval 'db.serverStatus()' --quiet"
+CMD="mongo --host $MONGO_HOST --port $MONGO_PORT --eval 'db.serverStatus()' --quiet"
 while $CMD ; ret=$? ; [ $ret -ne 0 ] ; do
 	echo "Waiting for Mongo server before backing up"
 	sleep 10

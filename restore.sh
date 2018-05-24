@@ -10,13 +10,13 @@ restore() {
 		return 1
 	fi
 	tar xvzf $DB.tgz
-	mongorestore --host mongo --drop $DB
+	mongorestore --host $MONGO_HOST --port $MONGO_PORT --drop $DB
 	rm -rf $DB.tgz $DB
 	echo "=============== Done $DB..."
 }
 
 echo "Starting restore script..."
-CMD="mongo --host mongo --eval 'db.serverStatus()' --quiet"
+CMD="mongo --host $MONGO_HOST --port $MONGO_PORT --eval 'db.serverStatus()' --quiet"
 while $CMD ; ret=$? ; [ $ret -ne 0 ] ; do
 	echo "Waiting for Mongo server before restore"
 	sleep 5

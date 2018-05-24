@@ -6,7 +6,10 @@ RUN apt-get install -y --force-yes mongodb-org-tools mongodb-org-shell
 
 RUN ln -s /root/.local/bin/aws /usr/bin/
 
-COPY . /
+COPY startup.sh /
+COPY backup.sh /
+COPY restore.sh /
+
 RUN ln -s /startup.sh /usr/local/bin/startup.sh
 
 CMD ["startup.sh"]

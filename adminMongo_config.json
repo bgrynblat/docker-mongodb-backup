@@ -1,7 +1,7 @@
 {
   "connections": {
     "mongoDB": {
-      "connection_string": "mongodb://mongo",
+      "connection_string": "mongodb://<MONGO_HOST>:<MONGO_PORT>",
       "connection_options": {}
     }
   }

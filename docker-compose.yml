@@ -7,16 +7,19 @@ services:
         interval: 30s
         timeout: 10s
         retries: 5
+
   backup:
     build: "."
     depends_on:
       - mongo
     environment:
-      - DATABASES=qat-tfnsw-future-feed-backend@s3://smallmultiples-mongo-backups/future-feed/qat-tfnsw-future-feed-backend.tgz
+      - DATABASES=qat-tfnsw-future-feed-backend@s3://smallmultiples-mongo-backups/tfnsw-future-feed/qat-tfnsw-future-feed-backend.tgz
       - AWS_ACCESS_KEY_ID=<aws_access_key_id>
       - AWS_SECRET_ACCESS_KEY=<aws_secret_key>
       - INTERVAL=600
-      - DATABASE_FILE=s3://smallmultiples-mongo-backups/databases.json
+      #- DATABASE_FILE=s3://smallmultiples-mongo-backups/databases.json
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
 
   admin:
     build:
@@ -25,7 +28,9 @@ services:
     depends_on:
       - mongo
     environment:
-      - PASSWORD=superadminpassword
+      - PASSWORD=bgr123
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
     ports:
       - "1234:1234"
       
